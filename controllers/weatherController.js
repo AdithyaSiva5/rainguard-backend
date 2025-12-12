@@ -1,8 +1,8 @@
-// controllers/weatherController.js  ← DEBUG VERSION (copy-paste fully)
-
 import axios from "axios";
 import { Groq } from "groq-sdk";
 import 'dotenv/config';
+
+
 const OPENWEATHER_KEY = process.env.OPENWEATHER_API_KEY;
 const GROQ_KEY = process.env.GROQ_API_KEY;
 
@@ -11,7 +11,7 @@ if (!OPENWEATHER_KEY) console.error("🚨 OPENWEATHER_API_KEY missing from .env"
 if (!GROQ_KEY) console.error("🚨 GROQ_API_KEY missing from .env");
 const groq = GROQ_KEY ? new Groq({ apiKey: GROQ_KEY }) : null;
 
-// 1. Get Current + 5-Day Forecast (for risk heatmaps) – FIXED: severity scope + fallbacks
+// 1. Get Current + 5-Day Forecast (unchanged – working)
 export const getForecast = async (req, res) => {
   try {
     const { lat, lon } = req.query;
@@ -27,18 +27,18 @@ export const getForecast = async (req, res) => {
     const forecastRes = await axios.get(forecastUrl);
     const forecastList = forecastRes.data.list.slice(0, 8); // Next ~1 day for demo speed
 
-    // Simulate risk events (rules-based "ML": flood if rain>20mm, storm if wind>30kmh, etc.) – FIXED
+    // Simulate risk events (rules-based "ML")
     const risks = forecastList.map(day => {
       const rain = day.rain?.['3h'] || 0;
-      const wind = (day.wind?.speed || 0) * 3.6; // m/s to km/h, fallback 0
-      const temp = day.main?.temp || 20; // Fallback to mild
-      const severity = Math.min(10, ((rain || 0) / 2 + wind / 3 + Math.max(0, (temp || 0) - 30)) / 3); // Explicit let implied, full fallbacks
+      const wind = (day.wind?.speed || 0) * 3.6; // m/s to km/h
+      const temp = day.main?.temp || 20;
+      const severity = Math.min(10, ((rain || 0) / 2 + wind / 3 + Math.max(0, (temp || 0) - 30)) / 3);
       return {
         time: day.dt_txt,
         riskType: (rain || 0) > 20 ? 'flood' : wind > 30 ? 'storm' : (temp || 0) > 35 ? 'heatwave' : 'low',
         severity: severity || 0,
         claimSurgePct: Math.min(50, (severity || 0) * 5),
-        estImpact: (severity || 0) * 10000 // $ per event, scale for demo
+        estImpact: (severity || 0) * 10000 // $ per event
       };
     });
 
@@ -49,7 +49,7 @@ export const getForecast = async (req, res) => {
   }
 };
 
-// 2. Risk Analysis (Region + Timeframe → Heatmap Data + Claims) – Already solid, minor fallback tweak
+// 2. Risk Analysis (unchanged – working)
 export const getRiskAnalysis = async (req, res) => {
   try {
     const { lat, lon, days = 7 } = req.query;
@@ -57,7 +57,7 @@ export const getRiskAnalysis = async (req, res) => {
 
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_KEY}&units=metric`;
     const forecastRes = await axios.get(forecastUrl);
-    const list = forecastRes.data.list.slice(0, parseInt(days) * 8) || []; // Fallback empty
+    const list = forecastRes.data.list.slice(0, parseInt(days) * 8) || [];
 
     const heatmap = list.map((item) => {
       const rain = item.rain?.['3h'] || 0;
@@ -68,7 +68,7 @@ export const getRiskAnalysis = async (req, res) => {
         time: item.dt_txt,
         risk: (rain || 0) > 15 || wind > 25 ? 'high' : 'medium',
         surgePct: Math.floor(Math.random() * 40) + 10, // 10-50%
-        financialImpact: ((Math.random() * 5000000 + 1000000) || 1000000).toFixed(0) // $1M-$6M, fallback
+        financialImpact: ((Math.random() * 5000000 + 1000000) || 1000000).toFixed(0) // $1M-$6M
       };
     });
 
@@ -89,7 +89,7 @@ export const getRiskAnalysis = async (req, res) => {
   }
 };
 
-// 3. Recommendations + Alerts (Groq-Powered) – FIXED: Model to llama-3.1-70b-versatile
+// 3. Recommendations + Alerts (Groq-Powered) – FIXED: Model to llama-3.3-70b-versatile
 export const getRecommendations = async (req, res) => {
   try {
     const { riskData, region } = req.body;
@@ -106,9 +106,9 @@ Respond with 3-5 bullet-point recommendations: pre-position teams, alert policyh
         },
         { role: "user", content: "Generate prep plan" }
       ],
-      model: "llama-3.1-70b-versatile", // FIXED: Current stable model (no deprecation)
+      model: "llama-3.3-70b-versatile", // FIXED: Latest non-deprecated successor (per Groq docs)
       temperature: 0.5,
-      max_tokens: 500 // Bumped for fuller recs
+      max_tokens: 500
     });
 
     const reply = completion.choices[0]?.message?.content || "Alert: System primed for action – no high risks detected.";
@@ -123,7 +123,7 @@ Respond with 3-5 bullet-point recommendations: pre-position teams, alert policyh
   }
 };
 
-// Legacy endpoints (unchanged, but with fallbacks for completeness)
+// Legacy endpoints (updated agent model too)
 export const getWeather = async (req, res) => {
   try {
     const { lat, lon } = req.query;
@@ -182,7 +182,7 @@ Reply in 2-3 short sentences with emojis. Be helpful and clear.`
         },
         { role: "user", content: message || "Hello" }
       ],
-      model: "llama-3.1-70b-versatile", // FIXED: Matching update
+      model: "llama-3.3-70b-versatile", // FIXED: Matching update to latest stable
       temperature: 0.7,
       max_tokens: 200,
     });
