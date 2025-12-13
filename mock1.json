@@ -1,0 +1,166 @@
+{
+    "13/12/2025": {
+        "average_speed": 47,
+        "max_speed": 71,
+        "distance_traveled": 78,
+        "harsh_braking_events": 0,
+        "harsh_acceleration_events": 1,
+        "idle_time_minutes": 4,
+        "country": "India",
+        "region": "Karnataka",
+        "road_type": "city",
+        "speed_limit": 60,
+        "traffic_condition": "moderate",
+        "trip_start_time": "08:00:00",
+        "trip_end_time": "18:00:00",
+        "engine_rpm_average": 1978,
+        "fuel_consumption": 7.3,
+        "speeding_events": 1,
+        "harsh_cornering_events": 2,
+        "phone_usage_distraction_events": 3,
+        "gps_breadcrumbs": [
+            {
+                "timestamp": "2025-12-13T08:00:00",
+                "lat": 12.980667,
+                "long": 77.595382,
+                "instantaneous_speed": 21.4
+            },
+            {
+                "timestamp": "2025-12-13T08:06:00",
+                "lat": 12.970907,
+                "long": 77.599928,
+                "instantaneous_speed": 38.7
+            },
+            {
+                "timestamp": "2025-12-13T08:14:00",
+                "lat": 12.974616,
+                "long": 77.594892,
+                "instantaneous_speed": 33.3
+            },
+            {
+                "timestamp": "2025-12-13T08:21:00",
+                "lat": 12.969402,
+                "long": 77.601138,
+                "instantaneous_speed": 45.0
+            },
+            {
+                "timestamp": "2025-12-13T08:36:00",
+                "lat": 12.972858,
+                "long": 77.604274,
+                "instantaneous_speed": 42.6
+            },
+            {
+                "timestamp": "2025-12-13T08:45:00",
+                "lat": 12.969787,
+                "long": 77.609209,
+                "instantaneous_speed": 47.0
+            },
+            {
+                "timestamp": "2025-12-13T08:54:00",
+                "lat": 12.971614,
+                "long": 77.602239,
+                "instantaneous_speed": 45.8
+            },
+            {
+                "timestamp": "2025-12-13T09:31:00",
+                "lat": 12.967512,
+                "long": 77.603884,
+                "instantaneous_speed": 39.4
+            },
+            {
+                "timestamp": "2025-12-13T09:44:00",
+                "lat": 12.965255,
+                "long": 77.613783,
+                "instantaneous_speed": 24.1
+            },
+            {
+                "timestamp": "2025-12-13T09:03:00",
+                "lat": 12.961786,
+                "long": 77.615903,
+                "instantaneous_speed": 43.5
+            }
+        ]
+    },
+    "12/12/2025": {
+        "average_speed": 47,
+        "max_speed": 70,
+        "distance_traveled": 91,
+        "harsh_braking_events": 0,
+        "harsh_acceleration_events": 0,
+        "idle_time_minutes": 5,
+        "country": "India",
+        "region": "Karnataka",
+        "road_type": "highway",
+        "speed_limit": 80,
+        "traffic_condition": "light",
+        "trip_start_time": "08:00:00",
+        "trip_end_time": "18:00:00",
+        "engine_rpm_average": 1753,
+        "fuel_consumption": 8.6,
+        "speeding_events": 0,
+        "harsh_cornering_events": 2,
+        "phone_usage_distraction_events": 1,
+        "gps_breadcrumbs": [
+            {
+                "timestamp": "2025-12-12T08:00:00",
+                "lat": 12.972728,
+                "long": 77.603842,
+                "instantaneous_speed": 82.1
+            },
+            {
+                "timestamp": "2025-12-12T08:09:00",
+                "lat": 12.973702,
+                "long": 77.59961,
+                "instantaneous_speed": 89.4
+            },
+            {
+                "timestamp": "2025-12-12T08:14:00",
+                "lat": 12.979997,
+                "long": 77.595436,
+                "instantaneous_speed": 60.6
+            },
+            {
+                "timestamp": "2025-12-12T08:18:00",
+                "lat": 12.975351,
+                "long": 77.596459,
+                "instantaneous_speed": 61.0
+            },
+            {
+                "timestamp": "2025-12-12T08:32:00",
+                "lat": 12.977805,
+                "long": 77.587403,
+                "instantaneous_speed": 64.3
+            },
+            {
+                "timestamp": "2025-12-12T08:25:00",
+                "lat": 12.985804,
+                "long": 77.595545,
+                "instantaneous_speed": 74.7
+            },
+            {
+                "timestamp": "2025-12-12T08:54:00",
+                "lat": 12.980525,
+                "long": 77.598068,
+                "instantaneous_speed": 63.1
+            },
+            {
+                "timestamp": "2025-12-12T08:42:00",
+                "lat": 12.98558,
+                "long": 77.604938,
+                "instantaneous_speed": 68.6
+            },
+            {
+                "timestamp": "2025-12-12T08:40:00",
+                "lat": 12.988054,
+                "long": 77.608929,
+                "instantaneous_speed": 73.7
+            },
+            {
+                "timestamp": "2025-12-12T09:12:00",
+                "lat": 12.978747,
+                "long": 77.611684,
+                "instantaneous_speed": 68.0
+            }
+        ]
+    }
+}
