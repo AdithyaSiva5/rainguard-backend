@@ -1,14 +1,33 @@
 import express from "express";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+
 const router = express.Router();
 
-router.get('/aggregateCarData', async (req, res) => {
-    console.log("HEre");
-    const carData = await import('../telematicsData.json', { assert: { type: 'json' } });
-    console.log("Car Data:", carData);
-    console.log(aggregateCarData(carData))
-})
+// Fix __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function loadTelematicsData() {
+  const filePath = path.join(__dirname, "../telematicsData.json");
+  const data = await fs.readFile(filePath, "utf-8");
+  return JSON.parse(data);
+}
+
+router.get("/aggregateCarData", async (req, res) => {
+  const carData = await loadTelematicsData();
+
+  const result = {};
+  for (const carId of Object.keys(carData)) {
+    result[carId] = aggregateCarData(carData[carId]);
+  }
+
+  res.json(result);
+});
 
 export default router;
+
 
 
 function aggregateCarData(carDailyData) {
