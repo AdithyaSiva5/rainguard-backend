@@ -1,0 +1,166 @@
+{
+  "carA": {
+    "13/12/2025": {
+      "average_speed": 45,
+      "max_speed": 70,
+      "distance_traveled": 80,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 1,
+      "idle_time_minutes": 5
+    },
+    "12/12/2025": {
+      "average_speed": 48,
+      "max_speed": 75,
+      "distance_traveled": 90,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 6
+    },
+    "11/12/2025": {
+      "average_speed": 50,
+      "max_speed": 80,
+      "distance_traveled": 100,
+      "harsh_braking_events": 1,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 4
+    },
+    "10/12/2025": {
+      "average_speed": 47,
+      "max_speed": 72,
+      "distance_traveled": 85,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 1,
+      "idle_time_minutes": 7
+    },
+    "09/12/2025": {
+      "average_speed": 46,
+      "max_speed": 78,
+      "distance_traveled": 95,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 5
+    },
+    "08/12/2025": {
+      "average_speed": 49,
+      "max_speed": 74,
+      "distance_traveled": 88,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 6
+    },
+    "07/12/2025": {
+      "average_speed": 44,
+      "max_speed": 71,
+      "distance_traveled": 82,
+      "harsh_braking_events": 1,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 4
+    },
+    "06/12/2025": {
+      "average_speed": 51,
+      "max_speed": 79,
+      "distance_traveled": 92,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 1,
+      "idle_time_minutes": 5
+    },
+    "05/12/2025": {
+      "average_speed": 43,
+      "max_speed": 69,
+      "distance_traveled": 78,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 7
+    },
+    "04/12/2025": {
+      "average_speed": 52,
+      "max_speed": 81,
+      "distance_traveled": 96,
+      "harsh_braking_events": 0,
+      "harsh_acceleration_events": 0,
+      "idle_time_minutes": 3
+    }
+  },
+  "carB": {
+    "13/12/2025": {
+      "average_speed": 65,
+      "max_speed": 110,
+      "distance_traveled": 120,
+      "harsh_braking_events": 5,
+      "harsh_acceleration_events": 7,
+      "idle_time_minutes": 15
+    },
+    "12/12/2025": {
+      "average_speed": 70,
+      "max_speed": 115,
+      "distance_traveled": 130,
+      "harsh_braking_events": 6,
+      "harsh_acceleration_events": 8,
+      "idle_time_minutes": 20
+    },
+    "11/12/2025": {
+      "average_speed": 68,
+      "max_speed": 105,
+      "distance_traveled": 125,
+      "harsh_braking_events": 4,
+      "harsh_acceleration_events": 6,
+      "idle_time_minutes": 18
+    },
+    "10/12/2025": {
+      "average_speed": 72,
+      "max_speed": 120,
+      "distance_traveled": 140,
+      "harsh_braking_events": 7,
+      "harsh_acceleration_events": 9,
+      "idle_time_minutes": 22
+    },
+    "09/12/2025": {
+      "average_speed": 67,
+      "max_speed": 108,
+      "distance_traveled": 115,
+      "harsh_braking_events": 5,
+      "harsh_acceleration_events": 7,
+      "idle_time_minutes": 16
+    },
+    "08/12/2025": {
+      "average_speed": 75,
+      "max_speed": 125,
+      "distance_traveled": 135,
+      "harsh_braking_events": 8,
+      "harsh_acceleration_events": 10,
+      "idle_time_minutes": 25
+    },
+    "07/12/2025": {
+      "average_speed": 66,
+      "max_speed": 112,
+      "distance_traveled": 110,
+      "harsh_braking_events": 4,
+      "harsh_acceleration_events": 6,
+      "idle_time_minutes": 14
+    },
+    "06/12/2025": {
+      "average_speed": 71,
+      "max_speed": 118,
+      "distance_traveled": 145,
+      "harsh_braking_events": 6,
+      "harsh_acceleration_events": 8,
+      "idle_time_minutes": 19
+    },
+    "05/12/2025": {
+      "average_speed": 69,
+      "max_speed": 107,
+      "distance_traveled": 128,
+      "harsh_braking_events": 5,
+      "harsh_acceleration_events": 7,
+      "idle_time_minutes": 17
+    },
+    "04/12/2025": {
+      "average_speed": 73,
+      "max_speed": 122,
+      "distance_traveled": 150,
+      "harsh_braking_events": 9,
+      "harsh_acceleration_events": 11,
+      "idle_time_minutes": 23
+    }
+  }
+}
