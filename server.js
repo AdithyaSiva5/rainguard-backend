@@ -2,7 +2,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import weatherRoutes from "./routes/weatherRoutes.js";
 import motorRoutes from "./routes/motorRoutes.js";
 import multer from "multer";
 import nutridriveRoutes from "./routes/nutridriveRoutes.js";
@@ -11,7 +10,6 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/api/weathershield", weatherRoutes);
 app.use('/api/motor', motorRoutes);
 
 // Multer for file uploads (store in memory for simplicity)
