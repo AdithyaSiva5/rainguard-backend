@@ -134,7 +134,7 @@ export const uploadCheckup = async (req, res) => {
         { role: "system", content: "Extract from checkup text: BMI, cholesterol mg/dL, body weight kg" },
         { role: "user", content: text }
       ],
-      model: "llama-3.1-70b-versatile",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       temperature: 0.5,
       max_tokens: 200
     });
@@ -159,7 +159,7 @@ export const recommendFood = async (req, res) => {
         { role: "system", content: "You are NutriDrive AI - friendly nutrition coach. Generate a daily meal plan: Breakfast, Lunch, Dinner, Snacks. Focus on balanced macros, low sugar, high fiber." },
         { role: "user", content: "Generate daily plan" }
       ],
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 400
     });
@@ -195,7 +195,7 @@ export const getChatResponse = async (req, res) => {
         { role: "system", content: `You are NutriDrive AI - friendly, motivational. Health score: ${healthScore}. Talk nicely on improvements.` },
         { role: "user", content: message || "How can I improve?" }
       ],
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 200
     });
