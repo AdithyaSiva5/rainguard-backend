@@ -2,12 +2,17 @@ import express from "express";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { calculateVehicleRisk } from "../services/calculateVehicleRisk.js";
+import { calculatePremium } from "../services/calculatePremium.js";
+import { generateAIExplanation } from "../services/aiExplanationService.js";
+
 
 const router = express.Router();
 
 // Fix __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const BASE_PREMIUM = 12000;
 
 async function loadTelematicsData() {
   const filePath = path.join(__dirname, "../telematicsData.json");
@@ -17,10 +22,25 @@ async function loadTelematicsData() {
 
 router.get("/aggregateCarData", async (req, res) => {
   const carData = await loadTelematicsData();
-
   const result = {};
+
   for (const carId of Object.keys(carData)) {
-    result[carId] = aggregateCarData(carData[carId]);
+    const analytics = calculateAvgData(carData[carId]);
+    const risk = calculateVehicleRisk(carData[carId]);
+    const premium = calculatePremium(12000, risk.vehicleRiskScore);
+
+    // const explanation = await generateAIExplanation({
+    //   country: Object.values(carData[carId])[0].country,
+    //   analytics,
+    //   risk,
+    //   premium
+    // });
+    result[carId] = {
+      analytics,
+      risk,
+      premium,
+      //aiExplanation: explanation
+    };
   }
 
   res.json(result);
@@ -30,9 +50,8 @@ export default router;
 
 
 
-function aggregateCarData(carDailyData) {
+function calculateAvgData(carDailyData) {
   const days = Object.keys(carDailyData).length;
-
   let totals = {
     avgSpeed: 0,
     maxSpeed: 0,
