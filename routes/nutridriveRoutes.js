@@ -7,7 +7,8 @@ import {
   getLackingInsights,
   getChatResponse,
   uploadDrivingData,
-  getRiskSummary
+  getRiskSummary,
+  uploadDrivingJson
 } from "../controllers/nutridriveController.js";
 
 const router = express.Router();
@@ -21,7 +22,7 @@ router.post("/chat", getChatResponse);
 
 // Driving APIs
 router.post("/upload-driving-data", uploadDrivingData);
-
+router.post("/upload-driving-json", uploadDrivingJson);
 // Summary
 router.get("/risk-summary", getRiskSummary);
 

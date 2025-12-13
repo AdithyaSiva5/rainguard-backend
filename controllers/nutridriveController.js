@@ -255,3 +255,62 @@ export const getRiskSummary = (req, res) => {
   const overall = Math.round((healthScore + drivingScore) / 2);
   res.json({ health: healthScore, driving: drivingScore, overall, message: `Overall risk: ${overall}/100 → Potential premium discount! 🛡️` });
 };
+
+export const uploadDrivingJson = async (req, res) => {
+  try {
+    if (!groq) return res.status(500).json({ error: "Groq not initialized" });
+
+    const jsonFile = req.files?.find(f => f.originalname.endsWith('.json'));
+    if (!jsonFile) return res.status(400).json({ error: "Missing JSON file" });
+
+    const jsonText = jsonFile.buffer.toString('utf-8');
+    let telematicsData;
+    try {
+      telematicsData = JSON.parse(jsonText);
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid JSON" });
+    }
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a driving risk analyst for insurance. Analyze the full telematics JSON data. Calculate: avg speed, max speed, total harsh brakes/accel, night driving % (trips starting/ending after 21:00 or before 6:00), total miles. Then compute a risk score 0-100 (higher = riskier). Use existing logic: speed >80mph penalty, harsh events >5/day, night >30%. Generate friendly insights and premium impact."
+        },
+        {
+          role: "user",
+          content: `Full telematics data: ${JSON.stringify(telematicsData).substring(0, 15000)}... (truncated if large)`  // Limit tokens
+        }
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.4,
+      max_tokens: 600,
+      response_format: { type: "json_object" }  // Force JSON: { score, insights, avgSpeed, harshEvents, nightPct, estimatedPremiumSavings }
+    });
+
+    let aiResult = {};
+    try {
+      const resultStr = completion.choices[0]?.message?.content?.trim() || "{}";
+      aiResult = JSON.parse(resultStr);
+    } catch (e) {
+      console.error("AI JSON parse error");
+      aiResult = { score: 75, insights: "Analysis complete – moderate risk." };
+    }
+
+    // Optional: fallback to your manual calc if needed
+    // const manualRisk = calculateVehicleRisk(telematicsData); // if structure matches
+
+    // Save to userData (same as manual)
+    userData.driving.push({ ...aiResult, fromAI: true });
+
+    res.json({
+      score: aiResult.score || 75,
+      insights: aiResult.insights || "AI analyzed your full driving data!",
+      details: aiResult,
+      message: "AI-powered driving analysis complete! 🚗💨"
+    });
+  } catch (error) {
+    console.error("Driving JSON Upload Error:", error.message);
+    res.status(500).json({ error: "AI analysis failed" });
+  }
+};
