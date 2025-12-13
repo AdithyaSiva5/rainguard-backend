@@ -25,21 +25,17 @@ router.get("/aggregateCarData", async (req, res) => {
   const result = {};
 
   for (const carId of Object.keys(carData)) {
-    const analytics = calculateAvgData(carData[carId]);
-    const risk = calculateVehicleRisk(carData[carId]);
-    const premium = calculatePremium(12000, risk.vehicleRiskScore);
+    // const analytics = calculateAvgData(carData[carId]);
+    // const risk = calculateVehicleRisk(carData[carId]);
+    // const premium = calculatePremium(12000, risk.vehicleRiskScore);
 
-    // const explanation = await generateAIExplanation({
-    //   country: Object.values(carData[carId])[0].country,
-    //   analytics,
-    //   risk,
-    //   premium
-    // });
+    const explanation = await generateAIExplanation({
+      country: Object.values(carData[carId]) });
     result[carId] = {
-      analytics,
-      risk,
-      premium,
-      //aiExplanation: explanation
+      // analytics,
+      // risk,
+      // premium,
+      aiExplanation: explanation
     };
   }
 

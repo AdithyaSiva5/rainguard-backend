@@ -5,15 +5,9 @@ if (!GROQ_KEY) console.error("🚨 GROQ_API_KEY missing from .env");
 
 const groq = GROQ_KEY ? new Groq({ apiKey: GROQ_KEY }) : null;
 export async function generateAIExplanation(input) {
-console.log("Here")
   const prompt = `
-You are an insurance risk analyst.
 
-Explain to the driver in simple, simple language:
-- Why their insurance premium is high or low
-- Which driving behaviors increased risk
-- What actions they can take to reduce their premium
-
+  This is the provided telematics data a vehicle . Generate a consie driving score and explanation based on the data.
 Data:
 ${JSON.stringify(input, null, 2)}
 `;
