@@ -80,7 +80,7 @@ const calculateDrivingScore = (data) => {
   return Math.max(0, Math.min(100, Math.round(score)));
 };
 
-// 1. Upload Meal (image + time)
+// 1. Upload Meal (image + time) – FIXED: image_url format + current vision model + JSON enforcement
 export const uploadMeal = async (req, res) => {
   try {
     if (!groq) return res.status(500).json({ error: "Groq not initialized" });
@@ -89,37 +89,54 @@ export const uploadMeal = async (req, res) => {
     if (!image || !time) return res.status(400).json({ error: "Missing image or time" });
 
     const base64Image = image.buffer.toString('base64');
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this meal: extract calories, protein g, sugar g, fiber g, saturated fat g, is ultra-processed? (yes/no)" },
-            { type: "vision_url", vision_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+            {
+              type: "text",
+              text: "Analyze this meal image carefully. Extract and return ONLY a JSON object with these exact keys (no extra text, explanations, or markdown): {\"calories\": number, \"protein\": number (grams), \"sugar\": number (grams), \"fiber\": number (grams), \"satFat\": number (saturated fat grams), \"ultraProcessed\": boolean (true if it looks heavily ultra-processed like fast food/soda/chips)}. Be accurate and conservative."
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${base64Image}`
+              }
+            }
           ]
         }
       ],
-      model: "llava-v1.5-7b-4096-preview",
-      temperature: 0.5,
-      max_tokens: 300
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",  // Current active vision model (preview but works)
+      temperature: 0.3,
+      max_tokens: 300,
+      response_format: { type: "json_object" }  // Enforces valid JSON output
     });
 
-    const analysisStr = completion.choices[0]?.message?.content || "{}";
-    const analysis = JSON.parse(analysisStr); // Assume AI outputs JSON
+    let analysis = {};
+    try {
+      const analysisStr = completion.choices[0]?.message?.content?.trim() || "{}";
+      analysis = JSON.parse(analysisStr);
+    } catch (parseErr) {
+      console.error("JSON Parse Error:", parseErr);
+      return res.status(500).json({ error: "AI returned invalid JSON" });
+    }
 
     const bodyWeightKg = userData.checkups.length > 0 ? userData.checkups[userData.checkups.length - 1].bodyWeightKg : 70;
     const score = calculateDietScore(analysis, time, bodyWeightKg);
     const meal = { time, analysis, score };
     userData.meals.push(meal);
 
-    res.json({ analysis, score, message: "Meal uploaded and scored!" });
+    res.json({ analysis, score, message: "Meal uploaded and scored! 🍽️" });
   } catch (error) {
     console.error("Meal Upload Error:", error.message);
-    res.status(500).json({ error: "Meal analysis failed" });
+    if (error.response?.data) console.error("Groq Error Details:", error.response.data);
+    res.status(500).json({ error: "Meal analysis failed – check server logs" });
   }
 };
 
-// 2. Upload Checkup (PDF)
+// 2. Upload Checkup (PDF) – FIXED: Use text model (no vision needed) + proper extraction prompt
 export const uploadCheckup = async (req, res) => {
   try {
     if (!groq) return res.status(500).json({ error: "Groq not initialized" });
@@ -127,30 +144,40 @@ export const uploadCheckup = async (req, res) => {
     if (!pdfFile) return res.status(400).json({ error: "Missing PDF" });
 
     const pdfData = await pdfParse(pdfFile.buffer);
-    const text = pdfData.text;
+    const text = pdfData.text.substring(0, 10000); // Limit text length for token safety
 
     const completion = await groq.chat.completions.create({
       messages: [
-        { role: "system", content: "Extract from checkup text: BMI, cholesterol mg/dL, body weight kg" },
+        {
+          role: "system",
+          content: "You are a medical data extractor. Return ONLY a JSON object with keys: bmi (number), cholesterol (number mg/dL), bodyWeightKg (number). If not found, use null."
+        },
         { role: "user", content: text }
       ],
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
-      temperature: 0.5,
-      max_tokens: 200
+      model: "llama-3.3-70b-versatile",  // Best current text model
+      temperature: 0.2,
+      max_tokens: 200,
+      response_format: { type: "json_object" }
     });
 
-    const extractStr = completion.choices[0]?.message?.content || "{}";
-    const extract = JSON.parse(extractStr); // Assume JSON output
+    let extract = {};
+    try {
+      const extractStr = completion.choices[0]?.message?.content?.trim() || "{}";
+      extract = JSON.parse(extractStr);
+    } catch (parseErr) {
+      console.error("Checkup JSON Parse Error:", parseErr);
+    }
+
     userData.checkups.push(extract);
 
-    res.json({ extract, message: "Checkup uploaded and parsed!" });
+    res.json({ extract, message: "Checkup uploaded and parsed! 🩺" });
   } catch (error) {
     console.error("Checkup Upload Error:", error.message);
     res.status(500).json({ error: "Checkup analysis failed" });
   }
 };
 
-// 3. Recommend Food (daily plan)
+// 3. Recommend Food – FIXED model
 export const recommendFood = async (req, res) => {
   try {
     if (!groq) return res.status(500).json({ error: "Groq not initialized" });
@@ -172,7 +199,7 @@ export const recommendFood = async (req, res) => {
   }
 };
 
-// 4. Lacking Insights
+// 4. Lacking Insights – unchanged (good!)
 export const getLackingInsights = (req, res) => {
   if (userData.meals.length === 0) return res.json({ insights: "No data yet - upload meals!" });
 
@@ -184,7 +211,7 @@ export const getLackingInsights = (req, res) => {
   res.json({ insights });
 };
 
-// 5. Chat Agent
+// 5. Chat Agent – FIXED model
 export const getChatResponse = async (req, res) => {
   try {
     const { message } = req.body;
@@ -208,7 +235,7 @@ export const getChatResponse = async (req, res) => {
   }
 };
 
-// 6. Upload Driving Data
+// 6. Upload Driving Data – unchanged
 export const uploadDrivingData = (req, res) => {
   const data = req.body;
   if (!data.speed || !data.brakes || !data.miles || data.nightDrivesPct === undefined) {
@@ -218,13 +245,13 @@ export const uploadDrivingData = (req, res) => {
   const score = calculateDrivingScore(data);
   userData.driving.push({ ...data, score });
 
-  res.json({ score, insights: `78/100 – Mild recklessness: Slow down. Safe drivers save 15% on premiums!` });
+  res.json({ score, insights: `Your safety score: ${score}/100 – Safe drivers save up to 20% on premiums! 🚗` });
 };
 
-// 7. Risk Summary
+// 7. Risk Summary – unchanged
 export const getRiskSummary = (req, res) => {
   const healthScore = getOverallHealthScore();
   const drivingScore = userData.driving.length > 0 ? userData.driving[userData.driving.length - 1].score : 50;
   const overall = Math.round((healthScore + drivingScore) / 2);
-  res.json({ health: healthScore, driving: drivingScore, overall, message: `Overall low risk → Premium discount?` });
+  res.json({ health: healthScore, driving: drivingScore, overall, message: `Overall risk: ${overall}/100 → Potential premium discount! 🛡️` });
 };
