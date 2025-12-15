@@ -82,11 +82,11 @@
         ]
     },
     "12/12/2025": {
-        "average_speed": 82,
-        "max_speed": 128,
-        "distance_traveled": 165,
-        "harsh_braking_events": 10,
-        "harsh_acceleration_events": 12,
+        "average_speed": 2000,
+        "max_speed": 2000,
+        "distance_traveled": 2000,
+        "harsh_braking_events": 2000,
+        "harsh_acceleration_events": 2000,
         "idle_time_minutes": 22,
         "country": "India",
         "region": "Maharashtra",

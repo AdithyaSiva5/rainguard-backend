@@ -20,5 +20,5 @@ app.use(upload.any());
 app.use("/api/nutridrive", nutridriveRoutes);
 app.use('/api/disaster', predictedDisaster)
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`NutriDrive AI Server: Ready to optimize habits on port ${PORT}`));
