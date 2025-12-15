@@ -136,46 +136,6 @@ export const uploadMeal = async (req, res) => {
   }
 };
 
-// 2. Upload Checkup (PDF) – FIXED: Use text model (no vision needed) + proper extraction prompt
-export const uploadCheckup = async (req, res) => {
-  try {
-    if (!groq) return res.status(500).json({ error: "Groq not initialized" });
-    const pdfFile = req.files.find(f => f.mimetype === 'application/pdf');
-    if (!pdfFile) return res.status(400).json({ error: "Missing PDF" });
-
-    const pdfData = await pdfParse(pdfFile.buffer);
-    const text = pdfData.text.substring(0, 10000); // Limit text length for token safety
-
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: "You are a medical data extractor. Return ONLY a JSON object with keys: bmi (number), cholesterol (number mg/dL), bodyWeightKg (number). If not found, use null."
-        },
-        { role: "user", content: text }
-      ],
-      model: "llama-3.3-70b-versatile",  // Best current text model
-      temperature: 0.2,
-      max_tokens: 200,
-      response_format: { type: "json_object" }
-    });
-
-    let extract = {};
-    try {
-      const extractStr = completion.choices[0]?.message?.content?.trim() || "{}";
-      extract = JSON.parse(extractStr);
-    } catch (parseErr) {
-      console.error("Checkup JSON Parse Error:", parseErr);
-    }
-
-    userData.checkups.push(extract);
-
-    res.json({ extract, message: "Checkup uploaded and parsed! 🩺" });
-  } catch (error) {
-    console.error("Checkup Upload Error:", error.message);
-    res.status(500).json({ error: "Checkup analysis failed" });
-  }
-};
 
 // 3. Recommend Food – FIXED model
 export const recommendFood = async (req, res) => {
@@ -247,6 +207,41 @@ export const uploadDrivingData = (req, res) => {
 
   res.json({ score, insights: `Your safety score: ${score}/100 – Safe drivers save up to 20% on premiums! 🚗` });
 };
+export const uploadCheckup = async (req, res) => {
+  try {
+    if (!groq) return res.status(500).json({ error: "Groq not initialized" });
+    const pdfFile = req.files.find(f => f.mimetype === 'application/pdf');
+    if (!pdfFile) return res.status(400).json({ error: "Missing PDF" });
+    const pdfData = await pdfParse(pdfFile.buffer);
+    const text = pdfData.text.substring(0, 10000);
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a medical data extractor. Return ONLY a JSON object with keys: bmi (number), cholesterol (number mg/dL), bodyWeightKg (number), bloodSugar (number mg/dL), hemoglobin (number g/dL), vitaminD (number ng/mL), calcium (number mg/dL), potassium (number mmol/L), sodium (number mmol/L), creatinine (number mg/dL), iron (number mcg/dL). If not found, use null."
+        },
+        { role: "user", content: text }
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.2,
+      max_tokens: 200,
+      response_format: { type: "json_object" }
+    });
+    let extract = {};
+    try {
+      const extractStr = completion.choices[0]?.message?.content?.trim() || "{}";
+      extract = JSON.parse(extractStr);
+    } catch (parseErr) {
+      console.error("Checkup JSON Parse Error:", parseErr);
+    }
+    userData.checkups.push(extract);
+    res.json({ extract, message: "Checkup uploaded and parsed! 🩺" });
+  } catch (error) {
+    console.error("Checkup Upload Error:", error.message);
+    res.status(500).json({ error: "Checkup analysis failed" });
+  }
+};
+
 
 // 7. Risk Summary – unchanged
 export const getRiskSummary = (req, res) => {
@@ -255,14 +250,11 @@ export const getRiskSummary = (req, res) => {
   const overall = Math.round((healthScore + drivingScore) / 2);
   res.json({ health: healthScore, driving: drivingScore, overall, message: `Overall risk: ${overall}/100 → Potential premium discount! 🛡️` });
 };
-
 export const uploadDrivingJson = async (req, res) => {
   try {
     if (!groq) return res.status(500).json({ error: "Groq not initialized" });
-
     const jsonFile = req.files?.find(f => f.originalname.endsWith('.json'));
     if (!jsonFile) return res.status(400).json({ error: "Missing JSON file" });
-
     const jsonText = jsonFile.buffer.toString('utf-8');
     let telematicsData;
     try {
@@ -270,39 +262,31 @@ export const uploadDrivingJson = async (req, res) => {
     } catch (e) {
       return res.status(400).json({ error: "Invalid JSON" });
     }
-
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "You are a driving risk analyst for insurance. Analyze the full telematics JSON data. Calculate: avg speed, max speed, total harsh brakes/accel, night driving % (trips starting/ending after 21:00 or before 6:00), total miles. Then compute a risk score 0-100 (higher = riskier). Use existing logic: speed >80mph penalty, harsh events >5/day, night >30%. Generate friendly insights and premium impact."
+          content: "You are a driving safety analyst for insurance. Analyze the full telematics JSON data. Calculate: avg speed, max speed, total harsh brakes/accel, night driving % (trips starting/ending after 21:00 or before 6:00), total miles. Then compute a safety score 0-100 (higher = safer, better driving). Penalize heavily for extremes (e.g., speed >100mph subtract 50+, harsh events >10/day subtract 30+). Use logic: penalize speed >80mph, harsh events >5/day, night >30%. Generate friendly insights and premium impact."
         },
         {
           role: "user",
-          content: `Full telematics data: ${JSON.stringify(telematicsData).substring(0, 15000)}... (truncated if large)`  // Limit tokens
+          content: `Full telematics data: ${JSON.stringify(telematicsData).substring(0, 15000)}... (truncated if large)`
         }
       ],
       model: "llama-3.3-70b-versatile",
       temperature: 0.4,
       max_tokens: 600,
-      response_format: { type: "json_object" }  // Force JSON: { score, insights, avgSpeed, harshEvents, nightPct, estimatedPremiumSavings }
+      response_format: { type: "json_object" } // { score, insights, avgSpeed, harshEvents, nightPct, estimatedPremiumSavings }
     });
-
     let aiResult = {};
     try {
       const resultStr = completion.choices[0]?.message?.content?.trim() || "{}";
       aiResult = JSON.parse(resultStr);
     } catch (e) {
       console.error("AI JSON parse error");
-      aiResult = { score: 75, insights: "Analysis complete – moderate risk." };
+      aiResult = { score: 75, insights: "Analysis complete – moderate safety." };
     }
-
-    // Optional: fallback to your manual calc if needed
-    // const manualRisk = calculateVehicleRisk(telematicsData); // if structure matches
-
-    // Save to userData (same as manual)
     userData.driving.push({ ...aiResult, fromAI: true });
-
     res.json({
       score: aiResult.score || 75,
       insights: aiResult.insights || "AI analyzed your full driving data!",
